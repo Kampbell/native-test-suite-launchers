@@ -1,0 +1,43 @@
+apply plugin: 'cpp'
+
+binaries.all {
+    if (it instanceof SharedLibraryBinarySpec) {
+        cppCompiler.define "GTEST_CREATE_SHARED_LIBRARY", "1"
+    }
+    cppCompiler.define "GTEST_LANG_CXX11", "1"
+}
+
+def genSrc = "${buildDir}/gtest-extract"
+task extractGoogleTest(type: Copy) {
+    from zipTree("gtest-r700.zip")
+    into "${genSrc}"
+}
+
+model {
+    components {
+        entryPoint(NativeLibrarySpec) {
+            baseName 'gtest-entryPoint'
+            sources {
+                cpp(CppSourceSet) {
+                    exportedHeaders.srcDir "${genSrc}/include"
+                    source.srcDir "${genSrc}/src"
+                    source.include 'gtest_main.cc'
+                    builtBy tasks.extractGoogleTest
+                }
+            }
+        }
+        core(NativeLibrarySpec) {
+            baseName 'gtest-core'
+            sources {
+                cpp(CppSourceSet) {
+                    exportedHeaders.srcDir "${genSrc}/include"
+                    source.srcDir "${genSrc}/src"
+                    source.include 'gtest-all.cc'
+                    exportedHeaders.srcDir "${genSrc}"
+                    builtBy tasks.extractGoogleTest
+                }
+            }
+
+        }
+    }
+}

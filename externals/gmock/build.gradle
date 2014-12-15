@@ -1,0 +1,44 @@
+apply plugin: 'cpp'
+
+binaries.all {
+    if (it instanceof SharedLibraryBinarySpec) {
+        cppCompiler.define "GTEST_CREATE_SHARED_LIBRARY", "1"
+    }
+    cppCompiler.define "GTEST_LANG_CXX11", "1"
+}
+
+def genSrc = "${buildDir}/gmock-extract"
+task extractGoogleMock(type: Copy) {
+    from zipTree("gmock-r501.zip")
+    into "${genSrc}"
+}
+
+model {
+    components {
+        entryPoint(NativeLibrarySpec) {
+            baseName 'gmock-entryPoint'
+            sources {
+                cpp(CppSourceSet) {
+                    exportedHeaders.srcDir "${genSrc}/include"
+                    source.srcDir "${genSrc}/src"
+                    source.include 'gmock_main.cc'
+                    builtBy tasks.extractGoogleMock
+                    lib project: ':externals:gtest', library: 'core', linkage: 'api'
+                }
+            }
+        }
+        core(NativeLibrarySpec) {
+            baseName 'gmock-core'
+            sources {
+                cpp(CppSourceSet) {
+                    exportedHeaders.srcDir "${genSrc}/include"
+                    source.srcDir "${genSrc}/src"
+                    source.include 'gmock-all.cc'
+                    exportedHeaders.srcDir "${genSrc}"
+                    builtBy tasks.extractGoogleMock
+                    lib project: ':externals:gtest', library: 'core', linkage: 'api'
+                }
+            }
+        }
+    }
+}

@@ -3,4 +3,7 @@ include 'google-test'
 include 'launcher'
 include 'channel-socket'
 
+include 'externals:gtest'
+include 'externals:gmock'
+
 rootProject.name = 'gradle-native-test-suite-launchers'

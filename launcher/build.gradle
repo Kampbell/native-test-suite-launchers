@@ -1,0 +1,19 @@
+apply plugin: 'c'
+apply plugin: 'cpp'
+
+model {
+    components {
+        main(NativeLibrarySpec)
+        mainTest(NativeExecutableSpec) {
+            binaries.all {
+                lib library: 'main', linkage: 'static'
+                lib project: ':externals:gmock', library: 'entryPoint', linkage: 'static'
+                lib project: ':externals:gmock', library: 'core', linkage: 'static'
+                lib project: ':externals:gtest', library: 'core', linkage: 'static'
+
+                cppCompiler.args '/GR'
+                linker.args 'Ws2_32.lib'
+            }
+        }
+    }
+}

@@ -35,9 +35,20 @@ allprojects {
             binary.cCompiler.args flag
         }
     }
+    
+    def addCompilerDefine = { NativeBinarySpec binary, String define, String value ->
+        if (binary.hasProperty("cppCompiler")) {
+            binary.cppCompiler.define define, value
+        }
+        if (binary.hasProperty("cCompiler")) {
+            binary.cCompiler.define define, value
+        }
+    }
 
     plugins.matching({it instanceof CppPlugin || it instanceof CPlugin}).all {
         binaries.all {
+            addCompilerFlag it, "/W4"
+            addCompilerDefine it, "WIN32", ""
             if (buildType.debug) {
                 addCompilerFlag it, '/Zi'
                 linker.args '/DEBUG'
@@ -86,14 +97,17 @@ model {
 
     components {
         main(NativeLibrarySpec)
-        mainTest(NativeExecutableSpec) {
+
+        socketChannel(NativeLibrarySpec)
+        socketChannelTest(NativeExecutableSpec) {
             sources {
                 c {
-                    source.srcDir "src/main/c"
+                    source.srcDir "src/socketChannel/c"
                 }
             }
             binaries.all {
                 lib library: 'main', linkage: 'api'
+                lib library: 'socketChannel', linkage: 'api'
                 lib project: ':gmock', library: 'entryPoint', linkage: 'static'
                 lib project: ':gmock', library: 'core', linkage: 'static'
                 lib project: ':gtest', library: 'core', linkage: 'static'
@@ -103,6 +117,24 @@ model {
                 cppCompiler.define "WINSOCK_API_LINKAGE", ""
                 cppCompiler.args '/GR'
                 //linker.args 'Ws2_32.lib'
+            }
+        }
+
+        thread(NativeLibrarySpec)
+        threadTest(NativeExecutableSpec) {
+            sources {
+                c {
+                    source.srcDir "src/thread/c"
+                }
+            }
+            binaries.all {
+                lib library: 'main', linkage: 'api'
+                lib library: 'thread', linkage: 'api'
+                lib project: ':gmock', library: 'entryPoint', linkage: 'static'
+                lib project: ':gmock', library: 'core', linkage: 'static'
+                lib project: ':gtest', library: 'core', linkage: 'static'
+
+                cppCompiler.args '/GR'
             }
         }
     }

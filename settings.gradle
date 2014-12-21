@@ -1,9 +1,11 @@
-include 'cunit'
-include 'google-test'
-include 'launcher'
-include 'channel-socket'
-
-include 'externals:gtest'
-include 'externals:gmock'
+include 'gtest'
+include 'gmock'
 
 rootProject.name = 'gradle-native-test-suite-launchers'
+rootProject.children.each {project ->
+    String projectDirName = "externals"
+    project.projectDir = new File(settingsDir, projectDirName)
+    project.buildFileName = "${project.name}.gradle"
+    assert project.projectDir.isDirectory()
+    assert project.buildFile.isFile()
+}

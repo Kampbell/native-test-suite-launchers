@@ -23,7 +23,7 @@ model {
                     source.srcDir "${genSrc}/src"
                     source.include 'gmock_main.cc'
                     builtBy tasks.extractGoogleMock
-                    lib project: ':externals:gtest', library: 'core', linkage: 'api'
+                    lib project: ':gtest', library: 'core', linkage: 'api'
                 }
             }
         }
@@ -36,7 +36,7 @@ model {
                     source.include 'gmock-all.cc'
                     exportedHeaders.srcDir "${genSrc}"
                     builtBy tasks.extractGoogleMock
-                    lib project: ':externals:gtest', library: 'core', linkage: 'api'
+                    lib project: ':gtest', library: 'core', linkage: 'api'
                 }
             }
         }

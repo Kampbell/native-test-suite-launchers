@@ -2,17 +2,39 @@ apply plugin: 'c'
 apply plugin: 'cpp'
 
 model {
+    repositories {
+        libs(PrebuiltLibraries) {
+            // Since we are not in total control of the command line and lib directive
+            // are appended in order of declaration on the command line, we fake a library
+            // for winsock so we can link the library after our test code which will make
+            // our remaining winsock function linked with the normal implementation.
+            winsock {
+                binaries.withType(StaticLibraryBinary) {
+                    staticLibraryFile = file('C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86/ws2_32.lib')
+                }
+            }
+        }
+    }
+
     components {
         main(NativeLibrarySpec)
         mainTest(NativeExecutableSpec) {
+            sources {
+                c {
+                    source.srcDir "src/main/c"
+                }
+            }
             binaries.all {
-                lib library: 'main', linkage: 'static'
+                lib library: 'main', linkage: 'api'
                 lib project: ':externals:gmock', library: 'entryPoint', linkage: 'static'
                 lib project: ':externals:gmock', library: 'core', linkage: 'static'
                 lib project: ':externals:gtest', library: 'core', linkage: 'static'
+                lib library: 'winsock', linkage: 'static'
 
+                cCompiler.define "WINSOCK_API_LINKAGE", ""
+                cppCompiler.define "WINSOCK_API_LINKAGE", ""
                 cppCompiler.args '/GR'
-                linker.args 'Ws2_32.lib'
+                //linker.args 'Ws2_32.lib'
             }
         }
     }

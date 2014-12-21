@@ -30,20 +30,13 @@ extern const uint8_t kSocketChannel;
 #define kCantCreateSocket       DECLARE_STATUS_FAILURE(FACILITY_CHANNEL, 7)
 #define kCantConnectClientToServer DECLARE_STATUS_FAILURE(FACILITY_CHANNEL, 8)
 
-typedef int(socket_t)(int socket_family, int socket_type, int protocol);
-typedef int(connect_t)(int socket, const struct sockaddr * addr, socklen_t addrlen);
-typedef int(close_t)(int socket);
-typedef size_t(recv_t)(int socket, void * buffer, size_t length, int flags);
-typedef size_t(send_t)(int socket, void * buffer, size_t length, int flags);
+
 
 typedef struct {
     uint8_t type;
-	socket_t * socket;
-	connect_t * connect;
-	close_t * close;
-	recv_t * recv;
-	send_t * send;
 } gradle_channel_configuration_t;
+
+extern SOCKET socketfd;  // TODO: Move to internal header
 
 ECHANNEL_t gradle_channel_initialize(gradle_channel_configuration_t * const configuration);
 ECHANNEL_t gradle_channel_peek(uint32_t * const size);

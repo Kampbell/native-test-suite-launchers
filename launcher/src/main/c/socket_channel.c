@@ -20,23 +20,13 @@ ECHANNEL_t gradle_channel_initialize(gradle_channel_configuration_t * const cont
     client_service.sin_addr.s_addr = inet_addr("127.0.0.1");  // TODO(daniel): Take the one from configuration
     client_service.sin_port = htons(5000);  // TODO(daniel): Take the one from configuration
 
-    if (NULL == context->socket) {
-        result = kInvalidSocketFunction;
-    } else if (NULL == context->connect) {
-        result = kInvalidConnectFunction;
-    } else if (NULL == context->close) {
-        result = kInvalidCloseFunction;
-    } else if (NULL == context->recv) {
-        result = kInvalidReceiveFunction;
-    } else if (NULL == context->send) {
-        result = kInvalidSendFunction;
-    } else if (kSocketChannel != context->type) {
+    if (kSocketChannel != context->type) {
         result = kInvalidChannelType;
     } else if (NO_ERROR != WSAStartup(MAKEWORD(2,2), &winsock_detail)) {
         // TODO(daniel): Test this case
-    } else if (INVALID_SOCKET == (socketfd = context->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))) {
+    } else if (INVALID_SOCKET == (socketfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))) {
         result = kCantCreateSocket;
-    } else if (SOCKET_ERROR == context->connect(socketfd, (SOCKADDR*)&client_service, sizeof(client_service))) {
+    } else if (SOCKET_ERROR == connect(socketfd, (SOCKADDR*)&client_service, sizeof(client_service))) {
         result = kCantConnectClientToServer;
     } else {
         g_context = context;
@@ -46,7 +36,7 @@ ECHANNEL_t gradle_channel_initialize(gradle_channel_configuration_t * const cont
 
     // Cleanup
     if (0 > result && INVALID_SOCKET != socketfd) {
-        context->close(socketfd);
+        closesocket(socketfd);
         socketfd = INVALID_SOCKET;
     }
 	if (0 > result) {
@@ -63,7 +53,7 @@ ECHANNEL_t gradle_channel_peek(uint32_t * const size)
 
     if (NULL == size) {
         // Invalide parameters
-    } else if (SOCKET_ERROR == (*size = g_context->recv(socketfd, NULL, 0, MSG_PEEK))) {
+    } else if (SOCKET_ERROR == (*size = recv(socketfd, NULL, 0, MSG_PEEK))) {
         // Problem
     } else {
         result = 0;
@@ -76,7 +66,7 @@ ECHANNEL_t gradle_channel_read(uint8_t * const dsts, uint16_t length, uint16_t *
     int result = -1;
     int read_len = 0;
 
-    if (SOCKET_ERROR == (read_len = g_context->recv(socketfd, dsts, length, 0))) {
+    if (SOCKET_ERROR == (read_len = recv(socketfd, dsts, length, 0))) {
     } else {
         result = 0;
     }
@@ -92,7 +82,7 @@ ECHANNEL_t gradle_channel_write(uint8_t * const srcs, uint16_t size) {
     int result = -1;
     int write_length = 0;
 
-    if (SOCKET_ERROR == (write_length = g_context->send(socketfd, srcs, size, 0))) {
+    if (SOCKET_ERROR == (write_length = send(socketfd, srcs, size, 0))) {
         // Problem
     } else if (size != write_length) {
         // Didn't write all the information
@@ -109,7 +99,7 @@ ECHANNEL_t gradle_channel_shutdown() {
     if (INVALID_SOCKET == socketfd) {
 
     } else {
-        g_context->close(socketfd);
+        closesocket(socketfd);
         WSACleanup();
         result = 0;
     }

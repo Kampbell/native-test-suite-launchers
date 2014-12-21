@@ -1,6 +1,8 @@
 #ifndef _GRADLE_INTERNAL_STATUS_H_
 #define _GRADLE_INTERNAL_STATUS_H_
 
+#include <stdint.h>
+
 typedef int32_t status_t;
 
 #define DECLARE_STATUS_SUCCESS(facility, code) ((status_t)((facility<<16)|code))

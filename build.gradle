@@ -24,6 +24,9 @@ allprojects {
         binaries.withType(NativeExecutableBinarySpec).matching({it.component.name.endsWith("Test")}).all {
             cppCompiler.define "GTEST_LANG_CXX11", "1"
             linker.args '/SUBSYSTEM:CONSOLE'
+            lib project: ':externals:gmock', library: 'entryPoint', linkage: 'static'
+            lib project: ':externals:gmock', library: 'core', linkage: 'static'
+            lib project: ':externals:gtest', library: 'core', linkage: 'static'
         }
     }
 
@@ -98,19 +101,15 @@ model {
     components {
         main(NativeLibrarySpec)
 
-        socketChannel(NativeLibrarySpec)
-        socketChannelTest(NativeExecutableSpec) {
+        channel(NativeLibrarySpec)
+        channelTest(NativeExecutableSpec) {
             sources {
                 c {
-                    source.srcDir "src/socketChannel/c"
+                    source.srcDir "src/channel/c"
                 }
             }
             binaries.all {
-                lib library: 'main', linkage: 'api'
-                lib library: 'socketChannel', linkage: 'api'
-                lib project: ':gmock', library: 'entryPoint', linkage: 'static'
-                lib project: ':gmock', library: 'core', linkage: 'static'
-                lib project: ':gtest', library: 'core', linkage: 'static'
+                lib library: 'channel', linkage: 'api'
                 lib library: 'winsock', linkage: 'static'
 
                 cCompiler.define "WINSOCK_API_LINKAGE", ""
@@ -128,14 +127,27 @@ model {
                 }
             }
             binaries.all {
-                lib library: 'main', linkage: 'api'
                 lib library: 'thread', linkage: 'api'
-                lib project: ':gmock', library: 'entryPoint', linkage: 'static'
-                lib project: ':gmock', library: 'core', linkage: 'static'
-                lib project: ':gtest', library: 'core', linkage: 'static'
 
                 cppCompiler.args '/GR'
             }
         }
     }
+}
+
+def buildAll = tasks.create("buildAll")
+binaries.all {
+    buildAll.dependsOn it
+}
+
+// Disable shared library for all component of this project
+binaries.withType(SharedLibraryBinarySpec) {
+    tasks.all {
+        it.onlyIf {false}
+    }
+}
+
+// All static library and test suite executable depends on the main component
+binaries.matching({(it instanceof StaticLibraryBinarySpec || it instanceof NativeExecutableBinarySpec) && it.component.name != 'main'}).all {
+    lib library: 'main', linkage: 'api'
 }

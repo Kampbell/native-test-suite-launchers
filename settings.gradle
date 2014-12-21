@@ -1,8 +1,8 @@
-include 'gtest'
-include 'gmock'
+include 'externals:gtest'
+include 'externals:gmock'
 
 rootProject.name = 'gradle-native-test-suite-launchers'
-rootProject.children.each {project ->
+rootProject.children.iterator().next().children.each {project ->
     String projectDirName = "externals"
     project.projectDir = new File(settingsDir, projectDirName)
     project.buildFileName = "${project.name}.gradle"

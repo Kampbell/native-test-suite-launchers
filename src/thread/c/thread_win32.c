@@ -1,4 +1,5 @@
 #include "gradle/thread.h"
+#include "gradle/internal/native_thread.h"
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 

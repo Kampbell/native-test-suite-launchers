@@ -51,6 +51,7 @@ allprojects {
     plugins.matching({it instanceof CppPlugin || it instanceof CPlugin}).all {
         binaries.all {
             addCompilerFlag it, "/W4"
+            addCompilerFlag it, "/wd4206"  // translation unit is empty
             addCompilerDefine it, "WIN32", ""
             if (buildType.debug) {
                 addCompilerFlag it, '/Zi'

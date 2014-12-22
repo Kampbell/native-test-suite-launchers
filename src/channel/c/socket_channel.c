@@ -1,5 +1,4 @@
-#include "gradle/channel.h"
-#include "gradle/internal/socket_channel.h"
+#include "gradle/internal/channel.h"
 
 //#include <sys/socket.h>
 

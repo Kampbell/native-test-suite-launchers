@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "gradle/channel.h"
-#include "gradle/internal/socket_channel.h"
+#include "gradle/internal/channel.h"
 
 #include "gradle/testing/socket_mock.h"
 

@@ -5,7 +5,7 @@
 
 #include "gmock/gmock.h"
 
-#include "gradle/internal/socket.h"
+#include "gradle/internal/channel.h"
 
 
 namespace gradle { namespace testing {

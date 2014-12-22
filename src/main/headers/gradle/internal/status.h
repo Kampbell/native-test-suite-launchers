@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 
-typedef int32_t status_t;
+#include "gradle/status.h"
+
 
 #define DECLARE_STATUS_SUCCESS(facility, code) ((status_t)((facility<<16)|code))
 #define DECLARE_STATUS_FAILURE(facility, code) ((status_t)((1<<31)|(facility<<16)|code))
